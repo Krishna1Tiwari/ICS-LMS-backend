@@ -11,9 +11,22 @@ const path = require('path');
 const app = express();
 // CORS setup to allow all origins
 app.use(cors({
-  origin: true,  // This allows all origins
+  origin: function (origin, callback) {
+    const allowedOrigins = ['https://api.icsecurity.in','https://www.api.icsecurity.in']; // Add your specific allowed URL here
+    
+    // Allow requests with no origin (e.g., mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+
+    // Check if the origin matches the allowed URL
+    if (allowedOrigins.indexOf(origin) !== -1 || origin === true) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS')); // Deny if not allowed
+    }
+  },
   credentials: true  // Allows credentials (like cookies)
 }));
+
 app.use(express.json());
 app.use(bodyParser.json());
 
