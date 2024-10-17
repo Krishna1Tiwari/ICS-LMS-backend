@@ -9,22 +9,11 @@ const path = require('path');
 // const MongoStore = require('connect-mongo');
 
 const app = express();
-const allowedOrigins = ['http://localhost:3002', 'http://localhost:3003'];
-// CORS setup
+// CORS setup to allow all origins
 app.use(cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      
-      // Check if the origin is in the allowedOrigins array
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true); // Allow the request
-      } else {
-        callback(new Error('Not allowed by CORS')); // Deny the request
-      }
-    },
-    credentials: true // Allows credentials (like cookies)
-  }));
+  origin: true,  // This allows all origins
+  credentials: true  // Allows credentials (like cookies)
+}));
 app.use(express.json());
 app.use(bodyParser.json());
 
@@ -43,5 +32,5 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Internal server error' });
 });
 
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
