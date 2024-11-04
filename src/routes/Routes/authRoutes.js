@@ -8,6 +8,7 @@ const {
     loginAdmin,
     sendOTPs,
     verifyOTPsAndRegister ,
+    contactFormSubmit
 } = require('../../controller/authController');
 
 
@@ -18,6 +19,9 @@ router.post('/login/user', loginUser);
 // Admin registration and login routes
 router.post('/register/admin', registerAdmin);
 router.post('/login/admin', loginAdmin);
+
+//contact route
+router.post('/contact', contactFormSubmit);
 
 // OTP routes
 router.post('/otp/send', sendOTPs);     // Route to send OTPs for email and WhatsApp

@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const { Otp } = require('../models/Otp');
 const multer = require('multer');
 const { generateOTP, sendEmailOTP } = require('../services/OtpService');
+const {sendEmail}=require('../services/emailService')
 
 // Send OTPs to both email and phone
 exports.sendOTPs = async (req, res) => {
@@ -179,6 +180,41 @@ exports.registerAdmin = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+exports.contactFormSubmit = async (req, res) => {
+    try {
+        // Extract fields from the request body
+        const { name, email, phone, subject, message } = req.body;
+
+        // Basic validation to ensure all required fields are present
+        if (!name || !email || !subject || !message) {
+            return res.status(400).json({ message: 'Please provide all required fields: name, email, subject, and message.' });
+        }
+
+        // Prepare email data
+        const emailData = {
+            name,
+            email,
+            phone: phone || 'Not provided', // Handle optional phone field
+            subject,
+            message
+        };
+
+        // Call the sendEmail function to send the email
+        const response = await sendEmail(emailData);
+
+        // Check if email was sent successfully
+        if (response.success) {
+            return res.status(200).json({ data: { message: response.message } });
+        } else {
+            // Handle the case where the email was not sent successfully
+            return res.status(500).json({ message: 'Failed to send email: ' + response.message });
+        }
+    } catch (error) {
+        // Handle unexpected errors
+        return res.status(500).json({ message: 'An error occurred while submitting the contact form: ' + error.message });
+    }
+};
+
 // Login admin
 exports.loginAdmin = async (req, res) => {
     const { email, password } = req.body;
