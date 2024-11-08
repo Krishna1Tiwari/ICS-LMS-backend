@@ -44,7 +44,6 @@ exports.sendOTPs = async (req, res) => {
     }
 };
 
-
 // Verify OTPs for both email and phone and register the user
 exports.verifyOTPsAndRegister = async (req, res) => {
     const { email, emailOTP, password, firstname, lastname } = req.body;
@@ -112,9 +111,6 @@ exports.verifyOTPsAndRegister = async (req, res) => {
     }
 };
 
-
-// Register user
-
 // Login user
 exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -146,7 +142,6 @@ exports.loginUser = async (req, res) => {
         res.status(500).json({ data: { message: 'Server error', error: error.message } });
     }
 };
-
 // Register admin
 exports.registerAdmin = async (req, res) => {
     const { email, password } = req.body;
@@ -214,7 +209,6 @@ exports.contactFormSubmit = async (req, res) => {
         return res.status(500).json({ message: 'An error occurred while submitting the contact form: ' + error.message });
     }
 };
-
 // Login admin
 exports.loginAdmin = async (req, res) => {
     const { email, password } = req.body;

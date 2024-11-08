@@ -9,12 +9,6 @@ exports.getUserProfile = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Populate the enrolledCourses with course details
-        await user.populate({
-            path: 'enrolledCourses.courseId',
-            model: 'Course',  // Populate course data
-            select: 'title description thumbnail modules',  // Specify what fields to return
-        });
 
         res.status(200).json({ data: { user } });
     } catch (error) {
@@ -36,43 +30,6 @@ exports.updateUserProfile = async (req, res) => {
     }
 };
 
-// Enroll in a course
-exports.enrollInCourse = async (req, res) => {
-    const { courseId } = req.body;
-    const userId = req.user.userId;
-
-    try {
-        const user = await User.findById(userId);
-        const course = await Course.findById(courseId);
-        
-        if (!course) {
-            return res.status(404).json({ message: 'Course not found' });
-        }
-
-        // Check if user is already enrolled in the course
-        const isAlreadyEnrolled = user.enrolledCourses.some((enrolledCourse) => 
-            enrolledCourse.courseId.toString() === courseId
-        );
-        if (isAlreadyEnrolled) {
-            return res.status(400).json({ message: 'User is already enrolled in this course' });
-        }
-
-        // Add course to enrolledCourses
-        user.enrolledCourses.push({
-            courseId: course._id,
-            enrollmentDate: new Date(),
-            progress: 0,
-            completedVideos: [],
-            isCompleted: false,
-        });
-
-        await user.save();
-        res.status(200).json({ message: 'Successfully enrolled in the course', data: user.enrolledCourses });
-    } catch (error) {
-        console.error('Error enrolling in course:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
 
 // Update course progress
 exports.updateCourseProgress = async (req, res) => {
