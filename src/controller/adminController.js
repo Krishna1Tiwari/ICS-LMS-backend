@@ -1,5 +1,6 @@
 // backend/controllers/adminController.js
 const User = require('../models/User');
+const Course = require('../models/Courses')
 
 
 // Fetch all users with pagination (limit 10)
@@ -206,35 +207,6 @@ exports.createCourse = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
-
-// Get all courses
-exports.getAllCourses = async (req, res) => {
-    try {
-        const courses = await Course.find();
-        res.status(200).json({ data: courses });
-    } catch (error) {
-        console.error('Error fetching courses:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
-// Get a single course by ID
-exports.getCourseById = async (req, res) => {
-    const { courseId } = req.params;
-
-    try {
-        const course = await Course.findById(courseId);
-        if (!course) {
-            return res.status(404).json({ message: 'Course not found' });
-        }
-
-        res.status(200).json({ data: course });
-    } catch (error) {
-        console.error('Error fetching course:', error);
-        res.status(500).json({ message: 'Server error' });
-    }
-};
-
 // Update a course
 exports.updateCourse = async (req, res) => {
     const { courseId } = req.params;

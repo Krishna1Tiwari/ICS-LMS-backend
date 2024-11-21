@@ -1,11 +1,13 @@
 const User = require('../models/User');
+require('dotenv').config();
 const Admin = require('../models/Admin');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Otp } = require('../models/Otp');
 const multer = require('multer');
 const { generateOTP, sendEmailOTP } = require('../services/OtpService');
-const {sendEmail}=require('../services/emailService')
+const {sendEmail}=require('../services/emailService');
+
 
 // Send OTPs to both email and phone
 exports.sendOTPs = async (req, res) => {
@@ -43,6 +45,7 @@ exports.sendOTPs = async (req, res) => {
         res.status(500).json({ message: 'Error sending OTPs', error: error.message });
     }
 };
+
 
 // Verify OTPs for both email and phone and register the user
 exports.verifyOTPsAndRegister = async (req, res) => {
@@ -164,7 +167,7 @@ exports.registerAdmin = async (req, res) => {
         // Generate JWT token
         const token = jwt.sign(
             { userId: admin._id, role: 'admin' },
-            process.env.JWT_SECRET,
+            process.env.SESSION_SECRET,
             { expiresIn: '1h' }
         );
 
@@ -218,17 +221,15 @@ exports.loginAdmin = async (req, res) => {
         if (!admin) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
-
         // Check password
         const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
-
         // Generate JWT token
         const token = jwt.sign(
             { userId: admin._id, role: admin.role },
-            process.env.JWT_SECRET,
+            process.env.SESSION_SECRET,
             { expiresIn: '1h' }
         );
 

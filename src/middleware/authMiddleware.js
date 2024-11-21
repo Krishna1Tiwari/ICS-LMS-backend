@@ -1,4 +1,6 @@
 // backend/middleware/authMiddleware.js
+require('dotenv').config();
+
 const jwt = require('jsonwebtoken');
 
 exports.authMiddleware = (req, res, next) => {
@@ -7,7 +9,7 @@ exports.authMiddleware = (req, res, next) => {
         return res.status(401).json({ message: 'No token, authorization denied' });
     }
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.SESSION_SECRET);
         req.user = decoded;
         next();
     } catch (error) {

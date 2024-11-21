@@ -1,50 +1,3 @@
-// const mongoose = require('mongoose');
-// const dotenv = require('dotenv');
-// const Grid = require('gridfs-stream');
-
-// dotenv.config();
-
-// // Connection for Auth/User Data Cluster
-// const connectAuthDB = async () => {
-//     try {
-//         const authConn = await mongoose.createConnection(process.env.MONGO_URI_AUTH, {
-//             useNewUrlParser: true,
-//             useUnifiedTopology: true
-//         });
-//         console.log('Auth and User Data MongoDB connected successfully.');
-//         return authConn; // Return the connection
-//     } catch (error) {
-//         console.error('Auth MongoDB connection failed:', error.message);
-//         process.exit(1);
-//     }
-// };
-
-// // Connection for Courses Data Cluster and GridFS
-// let gfs;
-// const connectCoursesDB = async () => {
-//     try {
-//         const coursesConn = await mongoose.createConnection(process.env.MONGO_URI_COURSES, {
-//             useNewUrlParser: true,
-//             useUnifiedTopology: true,
-//         });
-
-//         // Initialize GridFS stream
-//         gfs = Grid(coursesConn.db, mongoose.mongo);
-//         gfs.collection('uploads'); // Name of the GridFS collection for storing files
-//         console.log('Courses MongoDB and GridFS connected successfully.');
-//         return coursesConn; // Return the connection
-//     } catch (error) {
-//         console.error('Courses MongoDB connection failed:', error.message);
-//         process.exit(1);
-//     }
-// };
-
-// module.exports = {
-//     connectAuthDB,
-//     connectCoursesDB,
-//     gfs,  // Export gfs for use in file uploads
-// };
-
 const mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
@@ -58,7 +11,7 @@ const QuizSchema = new Schema({
 
 // Define the breakpoints schema
 const BreakpointSchema = new Schema({
-  time: { type: Number, required: true },
+  time: { type: Number, required: true }, // Time in the video where the quiz appears
   quiz: QuizSchema, // Embed the quiz schema
 });
 
@@ -66,9 +19,9 @@ const BreakpointSchema = new Schema({
 const VideoSchema = new Schema({
   id: { type: String, required: true },
   title: { type: String, required: true },
-  url: { type: String, required: true },
-  objective: { type: String, required: true },
-  breakpoints: [BreakpointSchema], // Array of breakpoints
+  videoId: { type: mongoose.Schema.Types.ObjectId, ref: 'fs.files', required: true }, // Refers to the GridFS file ID
+  objective: { type: String, required: true }, // Objective of the video
+  breakpoints: [BreakpointSchema], // Array of breakpoints for quizzes
 });
 
 // Define the module schema
@@ -76,21 +29,28 @@ const ModuleSchema = new Schema({
   id: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
-  videos: [VideoSchema], // Array of videos
+  videos: [VideoSchema], // Array of videos in the module
 });
 
 // Define the course schema
 const CourseSchema = new Schema({
-  id: { type: Number, required: true },
+  id: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
-  thumbnail: { type: String, required: true },
-  category: { type: String, required: true },
-  type: { type: String, required: true, enum: ['free', 'premium'], default: 'free' }, // Type: free or premium
+  thumbnailId: {type:String},  // Store GridFS ID for the thumbnail
+  category: { type: String, required: true }, // Category (e.g., Web Development, Cybersecurity)
+  type: { 
+    type: String, 
+    required: true, 
+    enum: ['free', 'premium'], // Type of course: either free or premium
+    default: 'free' 
+  },
+  price: { 
+    type: Number, 
+    required: function() { return this.type === 'premium'; } // Price is required only for premium courses
+  },
   modules: [ModuleSchema], // Array of modules
-}, { timestamps: true });
-
+}, { timestamps: true }); // Adds createdAt and updatedAt timestamps
 
 const Course = mongoose.model('Course', CourseSchema);
 module.exports = Course;
-
